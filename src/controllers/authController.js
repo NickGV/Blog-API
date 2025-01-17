@@ -5,13 +5,14 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 
 exports.signup = async (req, res) => {
-  const {email, password} = req.body;
+  const {email, password, username} = req.body;
   const hashedPassword = await bycrypt.hash(password, 10);
   try {
     const user = await prisma.user.create({
       data: {
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        username
       }
     });
     res.json({user});
