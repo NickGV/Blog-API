@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.createPost = async (req, res) => {
@@ -18,16 +18,22 @@ exports.createPost = async (req, res) => {
     });
     res.json({ post });
   } catch (error) {
-    res.status(400).json({ error: 'An error occurred while creating the post' });
+    res
+      .status(400)
+      .json({ error: "An error occurred while creating the post" });
   }
 };
 
 exports.getPosts = async (req, res) => {
   try {
-    const posts = await prisma.post.findMany();
+    const posts = await prisma.post.findMany({
+      include: {
+        comments: true,
+      },
+    });
     res.json({ posts });
   } catch (error) {
-    res.status(400).json({ error: 'An error occurred while fetching posts' });
+    res.status(400).json({ error: "An error occurred while fetching posts" });
   }
 };
 
@@ -37,13 +43,18 @@ exports.getPostById = async (req, res) => {
   try {
     const post = await prisma.post.findUnique({
       where: { id: parseInt(id) },
+      include: {
+        comments: true,
+      },
     });
     if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+      return res.status(404).json({ error: "Post not found" });
     }
     res.json({ post });
   } catch (error) {
-    res.status(400).json({ error: 'An error occurred while fetching the post' });
+    res
+      .status(400)
+      .json({ error: "An error occurred while fetching the post" });
   }
 };
 
@@ -64,7 +75,9 @@ exports.updatePost = async (req, res) => {
     });
     res.json({ post });
   } catch (error) {
-    res.status(400).json({ error: 'An error occurred while updating the post' });
+    res
+      .status(400)
+      .json({ error: "An error occurred while updating the post" });
   }
 };
 
@@ -75,8 +88,10 @@ exports.deletePost = async (req, res) => {
     await prisma.post.delete({
       where: { id: parseInt(id) },
     });
-    res.json({ message: 'Post deleted successfully' });
+    res.json({ message: "Post deleted successfully" });
   } catch (error) {
-    res.status(400).json({ error: 'An error occurred while deleting the post' });
+    res
+      .status(400)
+      .json({ error: "An error occurred while deleting the post" });
   }
 };
