@@ -2,10 +2,8 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.createPost = async (req, res) => {
-  const { title, content, tags } = req.body;
-  const { user } = req;
-  const image = req.file ? req.file.path : null;
-
+  console.log(req.body); // Verificar la estructura del objeto req.body
+  const { title, content, image, tags, authorId } = req.body;
   try {
     const post = await prisma.post.create({
       data: {
@@ -13,56 +11,43 @@ exports.createPost = async (req, res) => {
         content,
         image,
         tags,
-        authorId: user.id,
+        authorId,
       },
     });
-    res.json({ post });
+    res.status(201).json({ post });
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "An error occurred while creating the post" });
+    console.error("Error creating post:", error); // Asegurarse de que el error se registre correctamente
+    res.status(500).json({ message: "Error creating post", error });
   }
 };
 
 exports.getPosts = async (req, res) => {
   try {
-    const posts = await prisma.post.findMany({
-      include: {
-        comments: true,
-      },
-    });
-    res.json({ posts });
+    const posts = await prisma.post.findMany();
+    res.status(200).json({ posts });
   } catch (error) {
-    res.status(400).json({ error: "An error occurred while fetching posts" });
+    res.status(500).json({ message: "Error fetching posts", error });
   }
 };
 
 exports.getPostById = async (req, res) => {
   const { id } = req.params;
-
   try {
     const post = await prisma.post.findUnique({
       where: { id: parseInt(id) },
-      include: {
-        comments: true,
-      },
     });
     if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+      return res.status(404).json({ message: "Post not found" });
     }
-    res.json({ post });
+    res.status(200).json({ post });
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "An error occurred while fetching the post" });
+    res.status(500).json({ message: "Error fetching post", error });
   }
 };
 
 exports.updatePost = async (req, res) => {
   const { id } = req.params;
-  const { title, content, tags } = req.body;
-  const image = req.file ? req.file.path : null;
-
+  const { title, content, image, tags } = req.body;
   try {
     const post = await prisma.post.update({
       where: { id: parseInt(id) },
@@ -73,25 +58,20 @@ exports.updatePost = async (req, res) => {
         tags,
       },
     });
-    res.json({ post });
+    res.status(200).json({ post });
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "An error occurred while updating the post" });
+    res.status(500).json({ message: "Error updating post", error });
   }
 };
 
 exports.deletePost = async (req, res) => {
   const { id } = req.params;
-
   try {
     await prisma.post.delete({
       where: { id: parseInt(id) },
     });
-    res.json({ message: "Post deleted successfully" });
+    res.status(204).send();
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "An error occurred while deleting the post" });
+    res.status(500).json({ message: "Error deleting post", error });
   }
 };
