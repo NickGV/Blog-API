@@ -43,3 +43,4 @@ exports.login = async (req, res) => {
 exports.logout = (req, res) => {
   res.json({ user: null });
 }
+ 

@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.createPost = async (req, res) => {
-  console.log(req.body); // Verificar la estructura del objeto req.body
+  console.log(req.body);
   const { title, content, image, tags, authorId } = req.body;
   try {
     const post = await prisma.post.create({
@@ -16,7 +16,7 @@ exports.createPost = async (req, res) => {
     });
     res.status(201).json({ post });
   } catch (error) {
-    console.error("Error creating post:", error); // Asegurarse de que el error se registre correctamente
+    console.error("Error creating post:", error);
     res.status(500).json({ message: "Error creating post", error });
   }
 };
