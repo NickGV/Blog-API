@@ -3,23 +3,20 @@ const prisma = new PrismaClient();
 
 exports.createComment = async (req, res) => {
   const { content, postId } = req.body;
-  const { user } = req;
-  console.log(content, postId, user);
+  const { userId } = req.user;
 
   try {
     const comment = await prisma.comment.create({
       data: {
         content,
         postId: parseInt(postId),
-        authorId: user.id,
+        authorId: userId,
       },
     });
-    res.json({ comment });
+    res.status(201).json({ comment });
   } catch (error) {
-    console.log(error)
-    res
-      .status(400)
-      .json({ error: "An error occurred while creating the comment" });
+    console.error("Error creating comment:", error);
+    res.status(500).json({ error: "An error occurred while creating the comment" });
   }
 };
 
@@ -32,9 +29,7 @@ exports.getCommentsByPostId = async (req, res) => {
     });
     res.json({ comments });
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "An error occurred while fetching comments" });
+    res.status(400).json({ error: "An error occurred while fetching comments" });
   }
 };
 
@@ -45,15 +40,11 @@ exports.updateComment = async (req, res) => {
   try {
     const comment = await prisma.comment.update({
       where: { id: parseInt(id) },
-      data: {
-        content,
-      },
+      data: { content },
     });
     res.json({ comment });
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "An error occurred while updating the comment" });
+    res.status(400).json({ error: "An error occurred while updating the comment" });
   }
 };
 
@@ -64,10 +55,8 @@ exports.deleteComment = async (req, res) => {
     await prisma.comment.delete({
       where: { id: parseInt(id) },
     });
-    res.json({ message: "Comment deleted successfully" });
+    res.status(204).send();
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "An error occurred while deleting the comment" });
+    res.status(400).json({ error: "An error occurred while deleting the comment" });
   }
 };
